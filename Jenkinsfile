@@ -6,9 +6,9 @@ pipeline {
     }
 
     stages {
-        stage('Hello') {
+        stage('Build') {
             steps {
-                git branch: 'main', url: 'https://github.com/pxp2863/Devops_Project.git'
+                sh 'mvn clean install'
             }
         }
     }
