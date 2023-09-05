@@ -13,7 +13,19 @@ pipeline {
             steps {
                 sh 'mvn clean deploy'
             }
-        }
+        
+	}
+      stage('SonarQube analysis') {
+      environment {
+       scannerHome = tool 'pavan-sonar-scan'
+       }
+       steps{
+    withSonarQubeEnv('sonarqube-server') { 
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+    }
+  }
+
     }
 }
 
