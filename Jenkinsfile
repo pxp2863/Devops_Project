@@ -1,3 +1,6 @@
+def registry = 'https://pallagani.jfrog.io'
+def imageName = 'pallagani.jfrog.io/docker-local/ttrend'
+def version   = '2.1.4'
 pipeline {
     agent {
         node {
@@ -49,29 +52,30 @@ pipeline {
 }
 }
 }
-    stage('Build image') {
+           stage("Jar Publish") {
         steps {
-            echo 'Starting to build docker image'
-
             script {
-                def dockerfile = 'Dockerfile'
-                def customImage = docker.build('pallagani.jfrog.io/docker-local:latest', "-f ${dockerfile} .")
-
+                    echo '<--------------- Jar Publish Started --------------->'
+                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog-cred"
+                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                     def uploadSpec = """{
+                          "files": [
+                            {
+                              "pattern": "jarstaging/(*)",
+                              "target": "libs-release-local/{1}",
+                              "flat": "false",
+                              "props" : "${properties}",
+                              "exclusions": [ "*.sha1", "*.md5"]
+                            }
+                         ]
+                     }"""
+                     def buildInfo = server.upload(uploadSpec)
+                     buildInfo.env.collect()
+                     server.publishBuildInfo(buildInfo)
+                     echo '<--------------- Jar Publish Ended --------------->'  
+            
             }
-        }
-    }
-
-    stage ('Push image to Artifactory') {
-        steps {
-            rtDockerPush(
-                serverId: "pallagani.jfrog.io",
-                image: "pallagani.jfrog.io/docker-local/hello-world:latest",
-                host: 'pallagani.jfrog.io',
-                targetRepo: 'docker-local', // where to copy to (from docker-virtual)
-                // Attach custom properties to the published artifacts:
-                properties: 'project-name=docker1;status=stable'
-            )
-        }
+        }   
     }
 
 	}
