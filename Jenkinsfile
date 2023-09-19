@@ -49,6 +49,30 @@ pipeline {
 }
 }
 }
+    stage('Build image') {
+        steps {
+            echo 'Starting to build docker image'
+
+            script {
+                def dockerfile = 'Dockerfile'
+                def customImage = docker.build('pallagani.jfrog.io/docker-local:latest', "-f ${dockerfile} .")
+
+            }
+        }
+    }
+
+    stage ('Push image to Artifactory') {
+        steps {
+            rtDockerPush(
+                serverId: "pallagani.jfrog.io",
+                image: "pallagani.jfrog.io/docker-local/hello-world:latest",
+                host: 'pallagani.jfrog.io',
+                targetRepo: 'docker-local', // where to copy to (from docker-virtual)
+                // Attach custom properties to the published artifacts:
+                properties: 'project-name=docker1;status=stable'
+            )
+        }
+    }
 
 	}
 }
