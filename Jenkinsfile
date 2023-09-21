@@ -100,6 +100,15 @@ pipeline {
             }
         }
     }
-	
+	            stage (" Doploy "){
+        steps {
+            script {
+               echo '<--------------- Deploy --------------->'  
+                sh './deploy.sh'
+                }    
+               echo '<--------------- Deploy --------------->'  
+            }
+        }
+    }
 	}
 }
