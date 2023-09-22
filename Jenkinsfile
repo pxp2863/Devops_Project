@@ -100,13 +100,14 @@ pipeline {
             }
         }
     }
-	            stage (" Doploy "){
+	            stage (" Doploy with helm "){
         steps {
             script {
-               echo '<--------------- Deploy --------------->'  
-                sh './deploy.sh'
+               echo '<--------------- Deploy started--------------->'  
+                sh 'helm install demo-ttrend ttrend-0.1.0.tgz'
+				echo '<--------------- Deploy Completed--------------->' 
                 }    
-               echo '<--------------- Deploy --------------->'  
+                
             }
         }
     
